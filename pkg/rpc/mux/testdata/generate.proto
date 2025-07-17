@@ -1,0 +1,13 @@
+syntax = "proto3";
+option go_package = ".;testdata";
+
+message msg {
+  string  data = 1;
+}
+message blankMsg {}
+
+service foo {
+  rpc bar(msg)returns(msg);
+  rpc error(msg)returns(msg);
+  rpc blank(blankMsg)returns(blankMsg);
+}

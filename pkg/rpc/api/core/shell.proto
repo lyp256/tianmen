@@ -1,0 +1,72 @@
+syntax = "proto3";
+option go_package = ".;core";
+
+
+enum ShellMsgType {
+  SHELL_MSG_TYPE_IO = 0; // 程序输入输出数据
+  SHELL_MSG_TYPE_COMMAND = 1; // 初始化 shell 的命令
+  SHELL_MSG_TYPE_RESIZE = 2; // 改变窗口大小
+}
+
+message SysProcAttrLinux {
+  string  Chroot = 1;
+  oneof User{
+    uint32 Uid = 2;
+    string Username = 3;
+  }
+  oneof Group{
+    uint32 Gid = 4;
+    string Groupname = 5;
+  }
+
+}
+
+message SysProcAttrWindows {
+
+}
+
+message Env {
+  string  Name = 1;
+  string  Value = 2;
+}
+
+message Cmd {
+  string Path = 1 ;
+  repeated string Args = 2;
+  repeated Env Envs = 3;
+  string  Dir = 4;
+
+  oneof SysProcAttr{
+    SysProcAttrLinux Linux = 10;
+    SysProcAttrWindows Windows = 11;
+  }
+}
+
+message WinSize {
+  int32 Cols = 1;
+  int32  Rows = 2;
+}
+
+enum IODataType {
+  Stdin = 0;
+  Stdout = 1;
+  Stderr = 2;
+}
+
+message IoData {
+  IODataType Type = 1;
+  bytes Data = 2;
+}
+
+message ShellMsg {
+  ShellMsgType  type = 1;
+  oneof Data{
+    Cmd Cmd = 2;
+    IoData IO = 3;
+    WinSize Resize = 4;
+  }
+}
+
+service  Shell {
+  rpc Shell(stream  ShellMsg)returns(stream  ShellMsg);
+}
